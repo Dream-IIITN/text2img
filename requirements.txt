@@ -1,5 +1,8 @@
-streamlit
-diffusers
-transformers
-torch
-pillow
+streamlit==1.26.0
+diffusers==0.18.0
+torch==2.0.1
+transformers==4.35.0
+Pillow==9.5.0
+accelerate==0.23.0
+scipy==1.10.1
+

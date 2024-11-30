@@ -1,39 +1,50 @@
 import streamlit as st
 from diffusers import StableDiffusionPipeline
 import torch
-import os
 from PIL import Image
+import os
 
-# Load the Stable Diffusion model
+# Initialize the model from the GitHub repository cache
 @st.cache_resource
 def load_model():
+    # Assuming model_cache folder is uploaded to GitHub
     model_id = "CompVis/stable-diffusion-v1-4"
-    pipe = StableDiffusionPipeline.from_pretrained(model_id, torch_dtype=torch.float16)
+    cache_dir = "./model_cache"  # Use the path where the cache is saved in the GitHub repo
+    pipe = StableDiffusionPipeline.from_pretrained(
+        model_id,
+        cache_dir=cache_dir,
+        torch_dtype=torch.float16
+    )
     pipe.to("cuda" if torch.cuda.is_available() else "cpu")
     return pipe
 
+# Load the model
+st.title("Fashion Image Generator")
 pipe = load_model()
 
-# Generate images
-def generate_images(prompt, num_images):
-    results = pipe([prompt] * num_images, num_inference_steps=50, guidance_scale=7.5)
-    return results.images
+# Input for text prompt
+prompt = st.text_input("Enter your text prompt (e.g., 'A stylish summer outfit')", "")
 
-# Streamlit UI
-st.title("Text-to-Image Generator")
-st.markdown("Generate images based on your text descriptions!")
+# Number of images to generate
+num_images = st.slider("Number of images to generate", min_value=1, max_value=3, value=1)
 
-# Input fields
-prompt = st.text_input("Enter your text prompt:", "")
-num_images = st.slider("Select number of images to generate:", min_value=1, max_value=5, value=3)
+# Generate images on button click
+if st.button("Generate Images"):
+    if prompt:
+        with st.spinner("Generating images..."):
+            # Generate images
+            outputs = pipe([prompt] * num_images, num_inference_steps=50)
+            images = outputs.images
 
-if st.button("Generate"):
-    if prompt.strip():
-        st.markdown(f"**Generating {num_images} image(s) for:** {prompt}")
-        images = generate_images(prompt, num_images)
+            # Display generated images
+            st.success(f"Generated {num_images} images for prompt: '{prompt}'")
+            for idx, img in enumerate(images):
+                st.image(img, caption=f"Image {idx + 1}", use_column_width=True)
 
-        # Display images
-        for i, img in enumerate(images):
-            st.image(img, caption=f"Generated Image {i + 1}", use_column_width=True)
+            # Option to save images
+            if st.button("Download Images"):
+                for idx, img in enumerate(images):
+                    img.save(f"output_{idx + 1}.png")
+                st.success("Images saved successfully!")
     else:
-        st.error("Please enter a valid text prompt!")
+        st.warning("Please enter a prompt to generate images.")
