@@ -5,4 +5,5 @@ transformers==4.35.0
 Pillow==9.5.0
 accelerate==0.23.0
 scipy==1.10.1
+Flask==2.1.2
 

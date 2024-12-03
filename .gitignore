@@ -1,0 +1,22 @@
+# Ignore Python virtual environments
+venv/
+env/
+
+# Ignore macOS folder attributes
+.DS_Store
+
+# Ignore PyCharm project files
+.idea/
+
+# Ignore logs and environment files
+*.log
+*.env
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+
+#Ingnore model pickle
+stable_diffusion_pipeline.pkl
